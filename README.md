@@ -9,7 +9,12 @@ This project was created by Alexis Rosenfeld and François Delafontaine durign t
   - `kguesser.py`
   - `demo.ipynb`: A notebook
 
-- report contain the files of the project including 
--- the project proposa
--- the notbook of the class presentation
---  the final report 
+- **report**: Contains the files of the project, including:
+  - The project proposal
+  - The notebook of the class presentation
+  - The final report
+
+# Share
+If you want to share part of this project, here are some direct link : 
+
+- report : main.pdf 
