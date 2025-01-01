@@ -1,8 +1,8 @@
-#Description 
+# Description 
 
 This project was created by Alexis Rosenfeld and François Delafontaine durign the course "introduction to machine learning" given by prof Christos Dimitrakakis. 
 
-#Stucture of repositories 
+# Stucture of repositories 
 
 - kguesseur contain the source code of the projcet, including 
 -- data.xlsx : the data of the project
