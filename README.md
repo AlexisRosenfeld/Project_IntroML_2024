@@ -2,12 +2,12 @@
 
 This project was created by Alexis Rosenfeld and François Delafontaine durign the course "introduction to machine learning" given by prof Christos Dimitrakakis. 
 
-# Stucture of repositories 
+# Structure of Repositories
 
-- kguesseur contain the source code of the projcet, including 
--- data.xlsx : the data of the project
--- kguesser.py
--- demo.ipynb , a notebook 
+- **kguesseur**: Contains the source code of the project, including:
+  - `data.xlsx`: The data of the project
+  - `kguesser.py`
+  - `demo.ipynb`: A notebook
 
 - report contain the files of the project including 
 -- the project proposa
