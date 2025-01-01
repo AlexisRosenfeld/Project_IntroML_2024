@@ -18,3 +18,4 @@ This project was created by Alexis Rosenfeld and François Delafontaine durign t
 If you want to share part of this project, here are some direct link : 
 
 - report : main.pdf 
+https://github.com/AlexisRosenfeld/Project_IntroML_2024/blob/main/reports/ML_final_report/main.pdf
