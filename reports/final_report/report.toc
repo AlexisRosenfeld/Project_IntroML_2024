@@ -1,0 +1,24 @@
+\contentsline {section}{\numberline {1}Introduction}{2}{section.1}%
+\contentsline {section}{\numberline {2}What is Meta-Learning?}{2}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Key Components of Meta-Learning}{2}{subsection.2.1}%
+\contentsline {section}{\numberline {3}Data Sources and Simulation}{3}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Meta-Features}{3}{subsection.3.1}%
+\contentsline {section}{\numberline {4}Simulation and Dataset Generation}{3}{section.4}%
+\contentsline {subsection}{\numberline {4.1}The Use of Simulation in Meta-Learning}{3}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Simulation in This Study}{4}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Simulation Process and Dataset Types}{4}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Key Characteristics of Simulated Datasets}{4}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Advantages of Simulation in Meta-Learning}{4}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Methodology and Pipeline}{4}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Preprocessing}{4}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Regression Model}{5}{subsection.5.2}%
+\contentsline {section}{\numberline {6}Results and Evaluation}{5}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Performance Metrics}{5}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}Delta Accuracy Metric}{5}{subsection.6.2}%
+\contentsline {section}{\numberline {7}Discussion}{5}{section.7}%
+\contentsline {subsection}{\numberline {7.1}Challenges}{5}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.2}Ethical Considerations}{5}{subsection.7.2}%
+\contentsline {section}{\numberline {8}Conclusion}{5}{section.8}%
+\contentsline {section}{\numberline {A}Python Code for Simulation}{5}{appendix.A}%
+\contentsline {section}{\numberline {B}References}{6}{appendix.B}%
+\contentsline {section}{\numberline {C}Appendix - R Code}{6}{appendix.C}%
