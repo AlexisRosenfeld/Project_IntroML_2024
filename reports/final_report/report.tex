@@ -42,56 +42,49 @@
 \maketitle
 
 \begin{abstract}
-This report investigates meta-learning techniques for predicting the optimal \(k\) in \(k\)-Nearest Neighbors (KNN) models. By leveraging dataset meta-features, we propose a method to reduce the computational cost of hyperparameter selection. The work includes simulations to generate synthetic datasets, feature extraction, regression modeling, and validation of performance metrics. Additionally, we discuss the theoretical foundations of meta-learning, practical methodologies, and potential applications for reducing machine learning complexity.
+    This report investigates meta-learning techniques for predicting the optimal \(k\) in \(k\)-Nearest Neighbors (KNN) models. It does so by generating synthetic datasets, extracting meta-features from them and testing linear regression and neural network models. The presentation of each step is followed by a discussion on performance metrics and will emphasize the effects our dataset generation had on the results.
+    \newline
+    \newline
+    The source code for this project is available at :
+\newline
+\href{https://github.com/AlexisRosenfeld/Project_IntroML_2024/}{\small\textcolor{blue}{https://github.com/AlexisRosenfeld/Project\_IntroML\_2024/}}.
 \end{abstract}
 
 \tableofcontents
 
-\section{Introduction}
-Hyperparameter selection is a fundamental step in machine learning, often addressed using computationally expensive methods such as grid search or cross-validation. This study focuses on \(k\), the key hyperparameter in KNN models, and investigates its prediction through dataset meta-features. The primary objective is to reduce the computational cost of finding \(k\) from \(O(n^2)\) to \(O(1)\) using a predictive model.
-
-\section{What is Meta-Learning?}
-**Meta-learning**, often referred to as "learning to learn," is the process of improving machine learning systems by leveraging experiences across multiple tasks. It involves systematically observing algorithm performance on various datasets and using this knowledge to adapt quickly to new tasks.
-
-\subsection{Key Components of Meta-Learning}
-A critical aspect of meta-learning is the extraction of **meta-features**, descriptive characteristics summarizing dataset properties, such as:
-\begin{itemize}
-    \item Dataset size (\(n\_rows\))
-    \item Dimensionality (\(n\_features\))
-    \item Statistical moments (mean, variance, skewness)
-    \item Correlation or class imbalance
-\end{itemize}
-
-By analyzing the relationship between meta-features and algorithm performance, meta-learning systems can predict the best hyperparameters or algorithms for new datasets. This approach offers several benefits:
-\begin{enumerate}
-    \item Reduces computational costs by avoiding exhaustive searches.
-    \item Generalizes well to unseen tasks by learning from prior experiences.
-    \item Facilitates automated machine learning pipelines.
-\end{enumerate}
+\section{Meta-learning}
 \begin{quote}
     Meta-learning, or \emph{learning to learn}, is the science of systematically observing how different machine learning approaches perform on a wide range of learning tasks, and then learning from this experience, or meta-data, to learn new tasks much faster than otherwise possible.
-    \end{quote}
-    
-    \begin{flushright}
-    — Hutter, F., Kotthoff, L., \& Vanschoren, J. (2019). \emph{Automated Machine Learning: Methods, Systems, Challenges} (p. 219). Springer Nature.
-    \end{flushright}
-\section{Data Sources and Simulation}
-To support this study, three types of datasets were used:
+\begin{flushright}
+— Hutter, F., Kotthoff, L., \& Vanschoren, J. (2019). \emph{Automated Machine Learning: Methods, Systems, Challenges} (p. 219). Springer Nature.
+\end{flushright}
+\end{quote}
+
+\textit{Meta-learning} refers here to training a model on a task that is itself part of training a model, in this case the selection of hyperparameters. To further limit the scope of the task, it is limited to the \(k\)-Nearest Neighbors (KNN) model for its single \(k\) hyperparameter, and further constrained to purely quantitative datasets from which the hyperparameter should be derived.
+
+We therefore have datasets with features and an optimal \(k\) hyperparameter; we can derive \textit{meta-features} from those datasets, such as dataset size, dimensionality, statistical moments, etc. and then train a model on those \textit{meta-features} to predict the best \(k\) value.
+
+The primary objective is to reduce the computational cost of finding \(k\) from \(O(n^2)\) to \(O(1)\) using a predictive model instead of computationally expensive methods such as grid search or cross-validation. 
+
+All the source code used in this report can be found in the \textit{kguesser.py} file.
+
+\section{Data and features}
+The project planned for three sources of datasets:
 \begin{enumerate}
-    \item **Real datasets:** Sourced from publicly available repositories.
-    \item **Simulated datasets:** Generated with \(k\) pre-defined, followed by the calculation of meta-features.
-    \item **Test datasets:** Meta-features are created first, and \(k\) is obtained through KNN iterations.
+    \item \textit{Test datasets}: Generated by defining the meta-features first and then calculating a \(k\) through KNN iterations; the purpose being to observe the relations between meta-features and \(k\).
+    \item \textit{Simulated datasets}: Generated by setting \(k\) first, followed by the calculation of meta-features through pre-defined relations; the purpose being to test the model's behavior in a fully-controlled environment.
+    \item \textit{Real datasets}: Sourced from publicly available repositories; the purpose being to evaluate the model's actual performance. 
 \end{enumerate}
+In practice, only Test datasets have been exploited, as it has proved difficult to determine relationships for the selected meta-features. 
 
-This report primarily relies on the simulated datasets due to their flexibility for model training and testing.
+As for those meta-features, they were selected based on a few assumptions as to those relations. One was that \(k = \sqrt{n}/2\), as an approximation where \(n\) is the number of samples in the dataset. Another assumption was that the more noise, understood here as the overlap of feature values, the higher the \(k\) value should be. Yet another assumption was that the type of distribution could affect \(k\), although the types and manner were unclear. 
 
-\subsection{Meta-Features}
-The meta-features extracted include:
+As a result, we selected the following:
 \begin{itemize}
     \item \(n\_rows\): Number of samples.
     \item \(n\_classes\): Number of unique labels in the target variable.
     \item \(n\_features\): Number of predictors.
-    \item \(n\_nonrand\): Count of non-random features (weighted by correlation).
+    \item \(n\_nonrand\): Count of non-random features (weighed by correlation).
     \item \(distr\_type\): Distribution type (linear, quadratic, etc.).
     \item \(distr\_noise\): Overlap likelihood of feature values.
     \item \(mean\_var\): Weighted mean of feature variances.
@@ -99,107 +92,113 @@ The meta-features extracted include:
     \item \(mean\_kurtosis\): Weighted mean of feature kurtosis.
 \end{itemize}
 
-\section{Simulation and Dataset Generation}
-\subsection{The Use of Simulation in Meta-Learning}
-Simulation plays a critical role in machine learning by enabling data scientists to evaluate models in controlled environments before applying them to real-world data. This process is particularly useful for:
-\begin{itemize}
-    \item Understanding how specific models behave under various conditions.
-    \item Testing the ability of a model to identify true relationships in a hypothetical dataset.
-    \item Simplifying model selection by generating diverse datasets without the need for extensive data collection.
-\end{itemize}
+Three types of distribution were implemented: a linear relation to \(k\), a quadratic one and a probabilistic relation with \(20\%\) random datapoints. As for the noise, it is a categorical meta-feature with three values based on the overlap likelihood of a feature's values relative to \(k\). 
 
-While simulation provides flexibility and scalability, it also comes with the challenge of realism. Simulated data must closely mimic real-world patterns to ensure that the insights gained are applicable beyond the simulation.
+\begin{figure}[ht]
+\includegraphics[width=\textwidth]{Img/dataset.png}
+\caption{Illustration of a dataset.}
+\end{figure}
 
-\subsection{Simulation in This Study}
-For this project, the simulation process diverged from the traditional approach of hypothesizing relationships between features and labels. Instead, we leveraged the known relationship between the dataset's characteristics (meta-features) and the optimal hyperparameter \(k\) in KNN models. 
+Figure 1 showcases a generated dataset with 7 features and 600 datapoints. Each feature has a quantitative value in the \([0-1000]\) interval. The second graph shows a quadratic distribution with little noise, visible especially on the higher \(y\) values where no overlap occurs.
 
-This approach enabled us to:
-\begin{itemize}
-    \item Directly calculate the label (\(k\)) from the raw dataset.
-    \item Focus on generating variations in raw datasets to explore the robustness of our meta-learning model.
-    \item Avoid creating hypothetical relationships, thus ensuring that the results were grounded in quantifiable data properties.
-\end{itemize}
+\begin{figure}[ht]
+\includegraphics[width=\textwidth]{Img/relations.png}
+\caption{Meta-feature relations.}
+\end{figure}
 
-\subsection{Simulation Process and Dataset Types}
-We generated synthetic datasets \(D = y + X\), where:
-\begin{itemize}
-    \item \(y\): Target variable representing the labels.
-    \item \(X\): Matrix of predictors with controlled statistical properties.
-\end{itemize}
+Figure 2 presents the observed relations between our meta-features and the \(k\) hyperparameter based on 10,000 datapoints. We cannot discern clear relations from this, especially where expected with the number of rows; and while the statistical moments seem to follow a distribution, it is hard to interpret, especially as those moments are bound to be interdependent. 
 
-From these datasets, we derived meta-features (\(X_s\)) to form the meta-dataset \(D_t = y_k + X_s\), where \(y_k\) represents the optimal \(k\) values calculated using traditional KNN iterations.
+This speaks to not just the complexity of the task, with Real datasets expected to be even noisier, but also of our Test datasets. By testing three assumptions at once, the results became unreadable, preventing the establishment of relations for proper simulation work.
 
-\subsection{Key Characteristics of Simulated Datasets}
-To ensure robust predictions, the simulation process incorporated variations in:
-\begin{itemize}
-    \item Distribution types (linear, quadratic, etc.).
-    \item Noise levels (\(distr\_noise\)): Controlling the likelihood of feature overlap.
-    \item Dimensionality (\(n\_features\)) and dataset size (\(n\_rows\)).
-    \item Feature correlations and their impact on \(k\).
-\end{itemize}
+All operations to generate datasets is handled by the \textit{KG\_test} class.
 
-\subsection{Advantages of Simulation in Meta-Learning}
-The primary advantages of using simulation in this study are:
-\begin{itemize}
-    \item The ability to test model behavior across a wide range of dataset characteristics.
-    \item The creation of diverse training data for our regression model.
-    \item The elimination of hypothetical assumptions, as the optimal \(k\) is directly derived from the data.
-\end{itemize}
+\section{Models and pipeline}
 
-By focusing on realistic variations in raw datasets, our simulation process provided a robust foundation for predicting the hyperparameter \(k\) through meta-learning.
-\section{Methodology and Pipeline}
+The \(k\) hyperparameter is a quantitative value. We therefore focused on regression models, the simplest of which being the linear regression. The results eventually pushed us to test a more complex model; for that role we chose a neural network (NN). The pipeline in both cases is the same. The data is 10,000 datapoints containing our meta-features and the optimal \(k\) value.
+
+We will already provide the evaluation of each model in this section but discuss those results in a later section. The evaluation was done by splitting our data into training and evaluation, then doing a 5-folds cross-evaluation on the training data, then fitting the training data, predicting with the evaluation data and measuring the \textit{Mean Squared Error} (MSE) and \textit{Coefficient of Determination} (\(R^2\)). Results will focus mainly on the latter.
+
+All operations regarding the pipeline is handled by the \textit{KG\_model} class.
+
 \subsection{Preprocessing}
-The preprocessing steps included:
+Before training and evaluating the model(s), three steps were necessary:
 \begin{enumerate}
-    \item \textbf{One-Hot Encoding:} Transforming categorical variables.
+    \item \textbf{One-Hot Encoding:} Transforming categorical features.
     \item \textbf{Scaling:} Standardizing feature values for numerical stability.
-    \item \textbf{Feature Selection:} Retaining features with significant correlation.
+    \item \textbf{Feature Selection:} Retaining features by correlation.
 \end{enumerate}
+Regarding the selection of meta-features, it eliminates by default any meta-feature with a correlation score \(<= 0.2\). For our data, only \textit{n\_nonrand} and \textit{distr\_noise} cleared that threshold and were kept. 
+
+More precisely, feature selection is the last pre-process step, so while we preserved all values of \text{distr\_noise}, it had by then already been encoded and it would be more accurate to say that \textit{distr\_noise\_1} alone, that is the lowest noise level, cleared that threshold. This suggests that a better categorization of noise is required; but because that value may prove impossible to extract from Real data and because a correlation above 0.2 can still prove insufficient, it is likely not worth pursuing.
 
 \subsection{Regression Model}
-A linear regression model was chosen as the baseline:
-\[
-k = \beta_0 + \beta_1 X_1 + \beta_2 X_2 + \dots + \beta_n X_n
-\]
-The model predicts \(k\) based on the extracted meta-features.
+While meta-features are hard to determine, extract and select, the task itself is relatively simple and the relations expected to be straightforward. Therefore, a \textit{linear regression} model was deemed sufficient.
 
-\section{Results and Evaluation}
-\subsection{Performance Metrics}
-The model's performance was evaluated using:
+We expected \textit{n\_rows} to be significant and have a logarithmic relation; we likewise observed an exponential relation for \textit{mean\_var}. Those could have been reduced to linear relations by applying their inverse as a first preprocess step, before scaling. But with \textit{n\_nonrand} and \textit{distr\_noise} being the meta-features, none of those considerations became relevant. Instead, the model became:
+\[
+k = \beta_0 + \beta_1 n\_nonrand + \beta_2 distr\_noise\_1 + \beta_3 distr\_noise\_2 + \beta_4 distr\_noise\_3
+\]
+When trained and evaluated, the linear regression model offered:
 \begin{itemize}
-    \item Mean Squared Error (\(MSE\))
-    \item Coefficient of Determination (\(R^2\))
+    \item A cross-validation score (\(R^2\)) of 0.25
+    \item An MSE of 809.1
+    \item An \(R^2\) of 0.2
 \end{itemize}
-Cross-validation was used to ensure robustness.
 
-\subsection{Delta Accuracy Metric}
-The **delta accuracy metric** quantifies the performance gap between the predicted \(k\) and the optimal \(k\):
-\[
-\Delta \text{Accuracy} = \text{Accuracy}(\text{optimal } k) - \text{Accuracy}(\hat{k})
-\]
+\subsection{Neural Network}
+Given the results obtained through a linear regression, we wanted to test if the model was at fault. We did not expect a \textit{RandomForest} to be adapted to a limited number of quantitative features and therefore resorted to a neural network (NN). 
+
+For an NN model it is necessary to detail the parameters:
+\begin{itemize}
+    \item Layers: \([x, 64, 64, 32]\)
+    \item Activation: Relu
+    \item Optimization: lbfgs, sgd, adam
+\end{itemize}
+We tested a few layer patterns and settled on the current one. It is likely far too big for the task but again, our goal was to test whether bad performances were due to models being too simple. As for optimization, we tested three of them, albeit without touching the learning rate for \textit{sgd} or optimizing the betas for \textit{adam}. 
+
+That is because we obtained:
+\begin{itemize}
+    \item MSEs around 679-732
+    \item \(R^2\) between 0.31-0.36
+\end{itemize}
+With the \textit{lbfgs} optimizer performing best, at 0.36, giving us little reason to seek and optimize the others.
+
+\section{Performances}
+This report would not be complete without discussing the results we observed. The models we built, whether linear regression or neural networks, seek to return an optimal \(k\) value for the user; with an evaluation score of 0.2-0.36, we can accept that this task is not fulfilled.
+
+This brings two questions. 
+
+The first is what to fault for the results. At this stage we would safely rule out the choice of model as, while the neural network performs better, it is still insufficient. So the question then becomes whether the problem lies in our meta-features or with the Test datasets themselves. 
+
+The second question is whether that evaluation metric is the right one. If our model should return a \(k\) value, the user will evaluate it through the KNN performance. This, in turn, will prove to simplify the problem greatly.
+
+\subsection{Performance Metrics}
+There are several faults in our meta-features. We have already observed how the distribution noise values may not represent the right steps to properly inform on how noisy the data actually is; and more generally, how that distribution noise might not even be accessible to the user. We can also fault the distribution type: it should be a categorical value but, through its implementation, it turned into a quantitative one. This is a flaw that was left unaddressed simply because, regardless, no relationship appeared anyway.
+
+Meanwhile, that no relationship can be visible for the number of rows is abnormal. What this suggests to us is that the generation of datasets itself is at fault. 
+
+We expect it to be too complex and, as a result, too noisy. It was in fact designed to generate noisy data as prior exploratory work, generating clearer datasets, had the number of rows being the sole, overwhelming meta-feature. Further work on meta-learning for the \(k\) hyperparameter should focus on a single assumption, simulate on simpler datasets and then test on real datasets to avoid the current situation. 
+
+\subsection{Accuracy}
+Saying that our dataset generation is at fault becomes even clearer when considering how the predicted \(k\) actually performs on the dataset. That is to say, we can evaluate our models not on how off they are on selecting a \(k\) but on what accuracy the KNN gets from that \(k\) hyperparameter. The evaluation is between the accuracy obtained by the optimal \(k\) and the accuracy from the predicted one. 
+\begin{itemize}
+    \item 0.99 for the linear regression
+    \item 0.98 for the neural network (lbfgs)
+\end{itemize}
+The reason behind such impressive results is that most datasets allow for +40 \(k\) margin before accuracy falls by more than 0.1. Some datasets, especially for the lower accuracies, don't have any variation at all. In such conditions, any model with any amount of training data (we tested with as few as 80 datapoints) is bound to perform well.
 
 \section{Discussion}
-\subsection{Challenges}
-The model struggled with highly noisy datasets and those with imbalanced feature distributions. Future iterations should explore advanced regression models or neural networks.
+Meta-learning offers great perspectives for the automatic selection of hyperparameters. For the KNN model in particular, we can expect just a few meta-features to suffice: in a good dataset, those meta-features will provide a decent approximation while in a noisy or faulty dataset, any hyperparameter value becomes valid. The model could really be as simple as:
+\[
+k = \sqrt{n}/2
+\]
+But statistical moments, and correlation, may prove helpful as well.
 
-\subsection{Ethical Considerations}
-Real-world applications must address fairness and privacy concerns, particularly when using sensitive datasets.
+As for our methodology, we thought wise to first observe how even synthetic datasets behaved to determine the relations for our meta-features. This report can only conclude that such an approach must be abandoned or, at the very least, should have worked with much simpler and cleaner datasets. 
 
-\section{Conclusion}
-This study successfully demonstrates the potential of meta-learning to predict KNN hyperparameters efficiently. By leveraging dataset meta-features, we significantly reduce computational costs. Future research should refine feature selection and extend testing to real-world datasets.
+Simulations are there either to prepare an experiment, that is to see if the methodology will be viable before expending resources on it, or to test an experiment, that is to see how the model perform under controlled data. By not preparing anything and just assuming that our synthetic datasets would be good enough, our entire project had been set to fail from the start.
 
 \appendix
-\section{Python Code for Simulation}
-\begin{lstlisting}[language=Python, caption={Dataset Simulation Code}]
-import numpy as np
-
-def simulate_dataset(n_samples, n_features, noise_level):
-    X = np.random.normal(0, 1, size=(n_samples, n_features))
-    noise = np.random.normal(0, noise_level, size=X.shape)
-    y = (X.sum(axis=1) > 0).astype(int)
-    X += noise
-    return X, y
-\end{lstlisting}
 
 \section{References}
 \begin{thebibliography}{9}
@@ -207,135 +206,26 @@ def simulate_dataset(n_samples, n_features, noise_level):
 F. Hutter, L. Kotthoff, J. Vanschoren, \textit{Automated Machine Learning: Methods, Systems, Challenges}, Springer, 2019.
 \end{thebibliography}
 
-\section{Appendix - R Code} 
+\section{Appendix - Python code} 
 %
 %
-\begin{lstlisting}[caption={Exemple de classe Python}, label={lst:python_code}]
-    import os, time, re, joblib
-    import numpy as np
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    from scipy import stats
-    from scipy.stats import skew, kurtosis
-    from sklearn.neighbors import KNeighborsClassifier as sk_kNN
-    from sklearn.metrics import accuracy_score as sk_acc
-    from sklearn.metrics import mean_squared_error as sk_mse
-    from sklearn.metrics import r2_score as sk_r2
-    from sklearn.model_selection import train_test_split as sk_tts
-    from sklearn.model_selection import cross_val_score as sk_cross
-    from sklearn.preprocessing import OneHotEncoder, StandardScaler
-    from sklearn.linear_model import LinearRegression as sk_lm
-    from sklearn.neural_network import MLPRegressor as sk_nn
-    
-    class KG_base():
-        def __init__(self):
-            self.log_path = ""
-            self.head = ['best_k', 'n_rows', 'n_classes', 'n_features',
-                         'n_nonrand', 'distr_type', 'distr_noise', 
-                         'mean_var', 'mean_skew', 'mean_kurtosis']
-    
-        def _ifds(self, x, y=None):
-            if y is not None:
-                return x, y
-            elif isinstance(x, np.ndarray):
-                return x[:,1:], x[:,0]
-            elif isinstance(x, pd.core.frame.DataFrame):
-                yn = x.columns[0]
-                return x.drop([yn]), x[yn]
-            else:
-                y = []
-                for i, ix in x:
-                    y = x[i][0]; x[i] = x[i][1:]
-                return np.array(x), np.array(y)
-    
-        def log(self, txt, f="", end="\n"):
-            f = self.log_path if not f else f
-            if f:
-                mode = "w" if not os.path.isfile(f) else "a"
-                with open(f, mode=mode, encoding="utf-8") as wf:
-                    wf.write(txt+end)
-            else:
-                print(txt, end=end)
-    
-        def save(self, f, dat, columns=None):
-            columns = self.head if columns is None else columns
-            if not os.path.isfile(f):
-                pd.DataFrame(dat, columns=columns).to_excel(f, index=False)
-            else:
-                df = pd.read_excel(f)
-                nr = df[df.columns[0]].count()
-                for i, row in enumerate(dat):
-                    df.loc[nr+i] = row
-                df.to_excel(f, index=False)
-    
-        def load(self, f):
-            if not os.path.isfile(f):
-                return np.array([])
-            return pd.read_excel(f).to_numpy()
-    
-        def params(self, d_params={}):
-            d_cpy = {}
-            for k, v in self.__dict__.items():
-                if k.startswith("_"):
-                    continue
-                d_cpy[k] = v
-            for k, v in d_params.items():
-                if k in d_cpy:
-                    d_cpy[k] = self.__dict__[k] = v
-            return d_cpy
-    
-        def show(self, x, y=None, f="", columns=[]):
-            x, y = self._ifds(x, y)
-            columns = self.head if not columns else columns
-            if isinstance(y, np.ndarray):
-                df = pd.DataFrame(np.hstack((y.reshape(-1, 1), x)), columns=columns)
-            else:
-                df = pd.concat([y, x], axis=1, join="inner")
-            self.log(df.head(), f)
-    
-        def select_features(self, x, y=None, tol=0.2, delete=False):
-            x, y = self._ifds(x, y)
-            l_index = []
-            for i in range(x.shape[1]):
-                ix = x[:,i] if isinstance(x, np.ndarray) else \
-                     pd.DataFrame(x.iloc[:,i].values.reshape(-1, 1))
-                corr = np.corrcoef(y, ix)[0][1]
-                corr = abs(corr)
-                if corr > tol:
-                    l_index.append(i)
-            if delete:
-                l_rem = list(filter(None, [i if i not in l_index else None 
-                                           for i in range(x.shape[1])]))
-                if isinstance(x, pd.core.frame.DataFrame):
-                    x.drop(x.columns[l_rem], axis=1, inplace=True)
-                elif isinstance(x, np.ndarray):
-                    x = np.delete(x, l_rem, 1)
-                return x
-            return l_index
-    
-    class KG_test(KG_base):
-        def __init__(self):
-            super().__init__()
-            self.lim_row = [100, 10000]           # Nombre de lignes
-            self.lim_ycl = [3, 5]                 # Nombre de classes de y
-            self.lim_nbx = [3, 9]                 # Nombre de variables x
-            self.distr_type = -1                  # Type de distribution
-            self.distr_noise = -1                 # Niveau de bruit
-    
-        def generate(self, view=False, cheat=True, save_path=""):
-            pass
-    
-        def get_bestk(self, x, y=None):
-            # Calcule le meilleur k (nombre de voisins)
-            pass
-    
-        def get_features(self, x, y=None, d_vi=None):
-            pass
-    
-    if __name__ == "__main__":
-        kg_test = KG_test()
-        dat, k = kg_test.sim(100, "", True, "")
-        print("Done.")
+\begin{lstlisting}[caption={Operations}, label={lst:python_code}]
+    from kguesser import KG_test, KG_model      # import kguesser classes
+
+        # data generation
+    kg_test = KG_test()
+    dat, k = kg_test.sim(n, d_path, k_path)     # generate data and k tables
+    kg_test.show_features(dat)                  # plot relations
+        # pipeline
+    kg_model = KG_model()
+    dat = kg_model.load(d_path)                 # load data
+    kg_model.ktab = None                        # remove k table
+    kg_model.load_k(k_path)                     # load k table
+    mean, std, mse, r2 = kg_model.test_lm(dat)  # linear regression
+    for o in ['lbfgs', 'sgd', 'adam']:          # test NN optimizers
+        mean, std, mse, r2 = kg_model.test_nn(dat, params={'solver':o}, 
+                                              cross=False)
+    mean, std, mse, r2 = kg_model.test_nn(dat)  # neural network
 \end{lstlisting}
 %
 
